@@ -1,0 +1,46 @@
+Title:  The Javascript Grid Editor
+Original Author:  David Berry
+Licensing is Creative Commons Attribution-ShareAlike 3.0 United States.
+See the LICENSE file for details.
+
+OUTLINE:
+The Javascript Grid Editor is a 100% Javascript program that extends the functionality
+of CRM Grids by providing a way to edit records and add records, in place, by providing
+input elements in the cells of a CRM Grid and relevant functions to write any input
+provided to the CRM application via SOAP interaction.
+
+INSTRUCTIONS FOR USE:
+
+See:	http://crmentropy.blogspot.com/p/javascript-grid-editor.html
+
+VERSION HISTORY:
+
+1.0	Full Release
+
+	--In this Release--
+	All major features and functions are present and in fully operable condition.
+	Functions from other projects have been compiled into this program, and are
+	developed separately for convenience to myself, and the CRM Community.
+
+	New Features:
+	Insert Mode and Edit Mode
+		These functions provide the ability to edit or create a record directly 
+		into a CRM Grid.  This is limited to single-entity Grids.  Both functions
+		only work on records which are in the first, active State available, 
+		though the Status Reason has no restriction.
+
+	Default, Restricted, and Disabled inputs
+		By specifying special global variables, specified attributes can be
+		restricted from receiving a control entirely, have their controls
+		populated by default information, or become disabled.
+
+	Feature Enchancements:
+		N/A
+
+	Bug Fixes:
+		N/A
+
+KNOWN BUGS:
+1	Changing the “view” of a Grid (if applicable) does not reset or change the mode of the Grid Editor:
+	This has the unintended consequence of leaving the Grid Editor in Edit or Insert Mode, with no editing 
+	or inserting fields available.
