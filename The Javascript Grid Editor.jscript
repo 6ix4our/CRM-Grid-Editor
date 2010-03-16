@@ -1212,7 +1212,7 @@ function GridEditorObject() {
         attributeCell.attachEvent("onkeyup", DisableEventBubbling);
 
         // Create a new Object instance to encapsulate values and methods for initializing the control
-        var inputControl = record.InputControl[attribute.GridPosition] = new Object();
+        var inputControl = new Object();
 
         // Initialize inputControl members
         inputControl.Id = controlId;
@@ -1799,6 +1799,8 @@ function GridEditorObject() {
           
           // Move to the next control
           continue;
+        } else {
+          record.InputControl[attribute.GridPosition] = inputControl;
         }
       }
     }
