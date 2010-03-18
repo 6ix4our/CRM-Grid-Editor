@@ -11,7 +11,7 @@
 var GEO_ENTITYNAME = "";
 
 // Declare any attributes restricted from acquiring controls for create and update in an Array
-var GEO_RESTRICTEDATTRIBUTES = new Array("");
+var GEO_RESTRICTEDATTRIBUTES = new Array();
 
 // Setup the container for default values used for new records, if none are established by other code
 if (typeof(GEO_ADD_DEFAULTVALUES) == "undefined" || GEO_ADD_DEFAULTVALUES == null) {
@@ -1791,12 +1791,14 @@ function GridEditorObject() {
         }
 
         if (cancelControl) {
-          // Restore the original contents of the cell
-          attributeCell.innerHTML = record.OriginalContent[attribute.GridPosition];
+          if (this.Mode == this.EditorModes.Edit) {
+            // Restore the original contents of the cell
+            attributeCell.innerHTML = record.OriginalContent[attribute.GridPosition];
+          }
 
           // Blank the inputControl object
           inputControl = null;
-          
+
           // Move to the next control
           continue;
         } else {
