@@ -35,7 +35,6 @@ if (typeof(GEO_DISABLEATTRIBUTES) == "undefined" || GEO_DISABLEATTRIBUTES == nul
 function IncludeScript(targetDoc, script) {
   var htmlDoc = targetDoc.getElementsByTagName("head").item(0);
   var js = targetDoc.createElement("script");
-  //js.setAttribute("language", "javascript");
   js.setAttribute("type", "text/javascript");
   js.text = script;
   htmlDoc.appendChild(js);
@@ -46,7 +45,6 @@ function IncludeScript(targetDoc, script) {
 function IncludeExternalScript(targetDoc, filename) {
   var htmlDoc = targetDoc.getElementsByTagName("head").item(0);
   var js = targetDoc.createElement("script");
-  js.setAttribute("language", "javascript");
   js.setAttribute("type", "text/javascript");
   js.setAttribute("src", filename);
   htmlDoc.appendChild(js);
