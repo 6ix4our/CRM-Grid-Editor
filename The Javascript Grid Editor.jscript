@@ -2130,8 +2130,10 @@ function GridEditorObject() {
 
   // processes the remaining initializations, if no cancellation has occurred
   if (!this.Cancel) {
-    // load pertinent CRM-platform scripts and stylesheets for control usage
-    this.AddExternalResource(IncludeScript(document, this.RetrieveGlobals()));
+    // load pertinent globals, using our specialized function
+    IncludeScript(document, this.RetrieveGlobals());
+
+    // load pertinent, external CRM-platform scripts and stylesheets for control usage
     this.AddExternalResource(IncludeExternalStylesheet(document, "/_forms/controls/controls.css.aspx"));
     this.AddExternalResource(IncludeExternalStylesheet(document, "/_common/styles/select.css.aspx"));
     this.AddExternalResource(IncludeExternalScript(document, "/_static/_common/scripts/global.js"));
