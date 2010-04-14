@@ -297,7 +297,12 @@ function RetrieveEntity(entityName, entityItems) {
               attribute.Targets.push(targetNode.nodeTypedValue);
             }
           }
-    
+
+          // Make a special exception to Owner-type attributes with missing Targets
+          if (attribute.AttributeType == "Owner" && targets.length <= 0) {
+            attribute.Targets = new Array("systemuser");
+          }
+
           entity.Attributes[attribute.LogicalName] = attribute;
         }
       }
