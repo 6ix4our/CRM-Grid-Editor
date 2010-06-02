@@ -7,8 +7,40 @@
 // See the LICENSE file for details.
 //////////////////////////////////////////////////////////////////////////
 
+// Grid Editor Object Constants
+// [START] --- DO NOT MODIFY ---
+var GEO_CONSTANT_RECORDSTATE_OPEN = 1;
+var GEO_CONSTANT_RECORDSTATE_CLOSED = 2;
+var GEO_CONSTANT_MODE_VIEW = 1;
+var GEO_CONSTANT_MODE_EDIT = 2;
+var GEO_CONSTANT_MODE_ADD = 3;
+var GEO_CONSTANT_ACTION_EDIT = 1;
+var GEO_CONSTANT_ACTION_ADD = 2;
+var GEO_CONSTANT_ACTION_SAVE = 3;
+var GEO_CONSTANT_ACTION_CANCEL = 4;
+// [END]   --- DO NOT MODIFY ---
+
 // Define the entity for which the Grid Editor Object will be activated
 var GEO_ENTITYNAME = "";
+
+// Setup the container for registered button labels, as defined in the ISV.config file.  Defaulted with configuration with the English language ID (1033).
+var GEO_REGISTEREDBUTTONLABELS = new Object();
+
+// Setup the container for labels associated with the Edit/Save button
+GEO_REGISTEREDBUTTONLABELS.EditSaveButton = new Array();
+
+// Setup the container for labels associated with the New/Cancel button
+GEO_REGISTEREDBUTTONLABELS.NewCancelButton = new Array();
+
+// Define languages and labels used to identify the buttons; Default configuration for 1033 provided.
+GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033] = new Array();
+GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033][GEO_CONSTANT_MODE_VIEW] = "Edit Mode";
+GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033][GEO_CONSTANT_MODE_EDIT] = "Save All";
+GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033][GEO_CONSTANT_MODE_ADD] = "Save New";
+
+GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_VIEW] = "Insert Mode";
+GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_EDIT] = "Cancel All";
+GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_ADD] = "Cancel New";
 
 // Declare any attributes restricted from acquiring controls for create and update in an Array
 var GEO_RESTRICTEDATTRIBUTES = new Array();
@@ -243,7 +275,7 @@ function RetrieveEntity(entityName, entityItems) {
           }
           
           // Extract Status Options (if present)
-          var options = attributeNode.selectNodes("Options/StatusOption");
+          options = attributeNode.selectNodes("Options/StatusOption");
           
           if (options.length > 0) {
             // Extract each StatusOption with corresponding Value, Label, and State data
@@ -696,16 +728,16 @@ function GridEditorObject() {
           // Perform a specific action for this button, depending on the Mode
           switch(this.Mode) {
             // Currently in View mode; button is to enter Edit mode
-            case this.EditorModes.View:
-              this.TakeAction(this.EditorActions.EnterEdit);
+            case GEO_CONSTANT_MODE_VIEW:
+              this.TakeAction(GEO_CONSTANT_ACTION_EDIT);
               break;
             // Currently in Edit mode; button is to Save All
-            case this.EditorModes.Edit:
-              this.TakeAction(this.EditorActions.Save);
+            case GEO_CONSTANT_MODE_EDIT:
+              this.TakeAction(GEO_CONSTANT_ACTION_SAVE);
               break;
             // Currently in Add mode; button is to Save
-            case this.EditorModes.Add:
-              this.TakeAction(this.EditorActions.Save);
+            case GEO_CONSTANT_MODE_ADD:
+              this.TakeAction(GEO_CONSTANT_ACTION_SAVE);
               break;
           }
           break;
@@ -715,16 +747,16 @@ function GridEditorObject() {
           // Perform a specific action for this button, depending on the Mode
           switch(this.Mode) {
             // Currently in View mode; button is to enter Add mode
-            case this.EditorModes.View:
-              this.TakeAction(this.EditorActions.EnterAdd);
+            case GEO_CONSTANT_MODE_VIEW:
+              this.TakeAction(GEO_CONSTANT_ACTION_ADD);
               break;
             // Currently in Edit mode; button is to Cancel All
-            case this.EditorModes.Edit:
-              this.TakeAction(this.EditorActions.Cancel);
+            case GEO_CONSTANT_MODE_EDIT:
+              this.TakeAction(GEO_CONSTANT_ACTION_CANCEL);
               break;
             // Currently in Add mode; button is to Cancel
-            case this.EditorModes.Add:
-              this.TakeAction(this.EditorActions.Cancel);
+            case GEO_CONSTANT_MODE_ADD:
+              this.TakeAction(GEO_CONSTANT_ACTION_CANCEL);
               break;
           }
           break;
@@ -755,7 +787,7 @@ function GridEditorObject() {
   // function to change the current Mode
   this.ChangeMode = function(newMode) {
     // If we're reverting to View mode, clear the GridEditorObject's collection of grid records
-    if (newMode == this.EditorModes.View) {
+    if (newMode == GEO_CONSTANT_MODE_VIEW) {
       this.GridRecords = new Array();
     }
 
@@ -800,19 +832,19 @@ function GridEditorObject() {
     // Identify the proper set of actions to take, determined by the action type
     switch(actionType) {
       // The action to enter Edit mode has been triggered
-      case this.EditorActions.EnterEdit:
+      case GEO_CONSTANT_ACTION_EDIT:
         // Change the current mode
-        this.ChangeMode(this.EditorModes.Edit);
+        this.ChangeMode(GEO_CONSTANT_MODE_EDIT);
         // Handle the currently selected records
         this.RecordSelectionHandler();
         break;
 
       // The action to enter Add mode has been triggered
-      case this.EditorActions.EnterAdd:
+      case GEO_CONSTANT_ACTION_ADD:
         // Validate the presence of each required attribute
         if (this.ValidateRequiredAttributes()) {
           // Change the current mode
-          this.ChangeMode(this.EditorModes.Add);
+          this.ChangeMode(GEO_CONSTANT_MODE_ADD);
           // Validate the grid's readiness
           this.GridReadiness();
           // Open a new set of fields for input on a new record
@@ -823,14 +855,14 @@ function GridEditorObject() {
         break;
 
       // The action to Save all edited/new records has been triggered
-      case this.EditorActions.Save:
+      case GEO_CONSTANT_ACTION_SAVE:
         // Take an appropriate action depending on which Mode the GridEditorObject is in
         switch(this.Mode) {
-          case this.EditorModes.Edit:
+          case GEO_CONSTANT_MODE_EDIT:
             // Write all modified data back to the platform
             this.UpdateModifiedRecords();
             break;
-          case this.EditorModes.Add:
+          case GEO_CONSTANT_MODE_ADD:
             // Write all new data back to the platform
             this.CreateNewRecords();
             break;
@@ -841,7 +873,7 @@ function GridEditorObject() {
         break;
 
       // The action to Cancel all edited/new records has been triggered
-      case this.EditorActions.Cancel:
+      case GEO_CONSTANT_ACTION_CANCEL:
         // Call a grid refresh; automatically setting the mode back to View
         document.all.crmGrid.Refresh();
         break;
@@ -855,7 +887,7 @@ function GridEditorObject() {
   // function to handle record selection changes
   this.OnSelectionChange = function() {
     // Only take an interest in selection changes during Edit mode
-    if (this.Mode == this.EditorModes.Edit) {
+    if (this.Mode == GEO_CONSTANT_MODE_EDIT) {
       // Handle the currently selected records
       this.RecordSelectionHandler();
     }
@@ -865,7 +897,7 @@ function GridEditorObject() {
     // Clear active records
     this.GridRecords = new Array();
     // Switch the mode back to View
-    this.ChangeMode(this.EditorModes.View);
+    this.ChangeMode(GEO_CONSTANT_MODE_VIEW);
     // Reload the grid selection change handler
     this.LoadOnSelectionChangeHandler();
   }
@@ -874,10 +906,10 @@ function GridEditorObject() {
   this.ChangeRecordState = function(record, newState) {   
     // Perform the appropriate action for the new state
     switch(newState) {
-      case this.RecordStates.Open:
+      case GEO_CONSTANT_RECORDSTATE_OPEN:
         var changeIsValid = this.OpenRecord(record);
         break;
-      case this.RecordStates.Closed:
+      case GEO_CONSTANT_RECORDSTATE_CLOSED:
         var changeIsValid = this.CloseRecord(record);
         break;
     }
@@ -911,9 +943,9 @@ function GridEditorObject() {
       // If the selection state has changed, call an appropriate state change
       if (recordStateChange) {
         if (availableRecords[recordIndex].Selected == true) {
-          this.ChangeRecordState(this.GridRecords[recordIndex], this.RecordStates.Open);
+          this.ChangeRecordState(this.GridRecords[recordIndex], GEO_CONSTANT_RECORDSTATE_OPEN);
         } else {
-          this.ChangeRecordState(this.GridRecords[recordIndex], this.RecordStates.Closed);
+          this.ChangeRecordState(this.GridRecords[recordIndex], GEO_CONSTANT_RECORDSTATE_CLOSED);
         }
       }
     }
@@ -998,7 +1030,7 @@ function GridEditorObject() {
         };
       }
   
-      newRecord.SelfClose = changeStatePointer(this, newRecord, this.RecordStates.Closed);
+      newRecord.SelfClose = changeStatePointer(this, newRecord, GEO_CONSTANT_RECORDSTATE_CLOSED);
       
       cancelImage.attachEvent("onclick", AssociateObjWithEvent(newRecord, "SelfClose"));
     } else {
@@ -1031,7 +1063,7 @@ function GridEditorObject() {
     this.GridRecords.push(newRecord);
     
     // Apply controls to the new row
-    this.ChangeRecordState(newRecord, this.RecordStates.Open);
+    this.ChangeRecordState(newRecord, GEO_CONSTANT_RECORDSTATE_OPEN);
   }
 
   // function to construct the initialValue used by the OpenRecord function
@@ -1165,7 +1197,7 @@ function GridEditorObject() {
     record.InputControl = new Array();
 
     // Perform Mode-specific tasks for the record
-    if (this.Mode == this.EditorModes.Edit) {
+    if (this.Mode == GEO_CONSTANT_MODE_EDIT) {
       // Initialize variable to identify the presence of the statecode attribute
       var stateCodeIncluded = false;
   
@@ -1189,7 +1221,7 @@ function GridEditorObject() {
       // Make sure the record is in a valid state for editing
       if (record.RetrievedRecord == null || record.RetrievedRecord.Properties.statecode != this.ValidEntityState.InvariantName) {
         // This record's state is invalid for editing, close it off
-        this.ChangeRecordState(record, this.RecordStates.Closed);
+        this.ChangeRecordState(record, GEO_CONSTANT_RECORDSTATE_CLOSED);
       
         return false;
       }
@@ -1203,7 +1235,7 @@ function GridEditorObject() {
       var attribute = this.Attributes[attrIndex];
 
       // Is this attribute valid for the current Mode?
-      if ((attribute.ValidForUpdate && this.Mode == this.EditorModes.Edit) || (attribute.ValidForCreate && this.Mode == this.EditorModes.Add)) {
+      if ((attribute.ValidForUpdate && this.Mode == GEO_CONSTANT_MODE_EDIT) || (attribute.ValidForCreate && this.Mode == GEO_CONSTANT_MODE_ADD)) {
         // Initialize important control variables
         var inputControl = null;
         var cancelControl = false;
@@ -1238,7 +1270,7 @@ function GridEditorObject() {
         }
 
         // Construct initial values for the control, with dynamic sources
-        if (this.Mode == this.EditorModes.Edit) {
+        if (this.Mode == GEO_CONSTANT_MODE_EDIT) {
           // Capture the original contents of the cell
           record.OriginalContent[attribute.GridPosition] = attributeCell.innerHTML;
 
@@ -1799,7 +1831,7 @@ function GridEditorObject() {
         }
 
         if (cancelControl) {
-          if (this.Mode == this.EditorModes.Edit) {
+          if (this.Mode == GEO_CONSTANT_MODE_EDIT) {
             // Restore the original contents of the cell
             attributeCell.innerHTML = record.OriginalContent[attribute.GridPosition];
           }
@@ -1821,10 +1853,10 @@ function GridEditorObject() {
   // function to change a record's state to Closed
   this.CloseRecord = function(record) {
     // Conditionally replace, as the current state of the record determines
-    if (record.State == this.RecordStates.Open) {
+    if (record.State == GEO_CONSTANT_RECORDSTATE_OPEN) {
       // Mode-specific tasks
       switch (this.Mode) {
-        case this.EditorModes.Edit:
+        case GEO_CONSTANT_MODE_EDIT:
           // Restore the contents of each cell, if they are needed
           for (attrIndex in this.Attributes) {
             var attribute = this.Attributes[attrIndex];
@@ -1847,7 +1879,7 @@ function GridEditorObject() {
           record.RowElement.style["height"] = "21px";
           break;
 
-        case this.EditorModes.Add:
+        case GEO_CONSTANT_MODE_ADD:
           // Delete the row from the table         
           this.GridTable.deleteRow(record.RowElement.rowIndex);
           break;
@@ -1864,7 +1896,7 @@ function GridEditorObject() {
       var targetRecord = this.GridRecords[recordIndex];
       var recordIsDirty = false;
       
-      if (targetRecord.State != this.RecordStates.Open) {
+      if (targetRecord.State != GEO_CONSTANT_RECORDSTATE_OPEN) {
         continue;
       }
 
@@ -1968,7 +2000,7 @@ function GridEditorObject() {
     for (recordIndex in this.GridRecords) {
       var targetRecord = this.GridRecords[recordIndex];
       
-      if (targetRecord.State != this.RecordStates.Open) {
+      if (targetRecord.State != GEO_CONSTANT_RECORDSTATE_OPEN) {
         continue;
       }
 
@@ -2078,29 +2110,11 @@ function GridEditorObject() {
 
   this.TriggerElement = window.event.srcElement;
 
-  // enumeration for the State attribute of a Record
-  this.RecordStates = new Object();
-  this.RecordStates.Open = 1;
-  this.RecordStates.Closed = 2;
-
   // initialize the container for records being worked on
   this.GridRecords = new Array();
 
   // initialize the container for retrieved entity data
   this.RetrievedEntities = new Object();
-
-  // enumeration for the Mode attribute
-  this.EditorModes = new Object();
-  this.EditorModes.View = 1;
-  this.EditorModes.Edit = 2;
-  this.EditorModes.Add = 3;
-
-  // enumeration for the Action type
-  this.EditorActions = new Object();
-  this.EditorActions.EnterEdit = 1;
-  this.EditorActions.EnterAdd = 2;
-  this.EditorActions.Save = 3;
-  this.EditorActions.Cancel = 4;
 
   // active references to the ISV.config specified buttons
   this.ActionButtons = new Object();
@@ -2116,15 +2130,9 @@ function GridEditorObject() {
   this.ActionButtons.NewCancel.RegisteredText = new Array();
 
   // initialize the known ToolTips for the buttons, stored in relation to the localization code
-  this.ActionButtons.EditSave.RegisteredText[1033] = new Array();
-  this.ActionButtons.EditSave.RegisteredText[1033][this.EditorModes.Add] = "Save New";
-  this.ActionButtons.EditSave.RegisteredText[1033][this.EditorModes.Edit] = "Save All";
-  this.ActionButtons.EditSave.RegisteredText[1033][this.EditorModes.View] = "Edit Mode";
+  this.ActionButtons.EditSave.RegisteredText = GEO_REGISTEREDBUTTONLABELS.EditSaveButton;
 
-  this.ActionButtons.NewCancel.RegisteredText[1033] = new Array();
-  this.ActionButtons.NewCancel.RegisteredText[1033][this.EditorModes.Add] = "Cancel New";
-  this.ActionButtons.NewCancel.RegisteredText[1033][this.EditorModes.Edit] = "Cancel All";
-  this.ActionButtons.NewCancel.RegisteredText[1033][this.EditorModes.View] = "Insert Mode";
+  this.ActionButtons.NewCancel.RegisteredText = GEO_REGISTEREDBUTTONLABELS.NewCancelButton;
 
   // initialize the array of external resource nodes
   this.ExternalResources = new Array();
@@ -2157,7 +2165,7 @@ function GridEditorObject() {
     this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/number/number.js"));
   
     // initializes the GridEditor in View mode
-    this.Mode = this.EditorModes.View;
+    this.Mode = GEO_CONSTANT_MODE_VIEW;
   
     // initializes the GridEditorObject.Locale member
     this.Locale = USER_LANGUAGE_CODE;
