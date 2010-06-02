@@ -45,6 +45,14 @@ GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_ADD] = "Cance
 // Declare any attributes restricted from acquiring controls for create and update in an Array
 var GEO_RESTRICTEDATTRIBUTES = new Array();
 
+// Setup the container for attributes that should have disabled controls, if not already established
+// Note:  this differs from restricted attributes in that a value may be specified for saving, but restricted from edit
+if (typeof(GEO_DISABLEATTRIBUTES) == "undefined" || GEO_DISABLEATTRIBUTES == null) {
+  var GEO_DISABLEATTRIBUTES = new Array();
+}
+
+// Define universally disabled attribute controls
+
 // Setup the container for default values used for new records, if none are established by other code
 if (typeof(GEO_ADD_DEFAULTVALUES) == "undefined" || GEO_ADD_DEFAULTVALUES == null) {
   var GEO_ADD_DEFAULTVALUES = new Object();
@@ -55,14 +63,6 @@ if (typeof(GEO_ADD_DEFAULTVALUES) == "undefined" || GEO_ADD_DEFAULTVALUES == nul
 }
 
 // Define universally default values; overrides 
-
-// Setup the container for attributes that should have disabled controls, if not already established
-// Note:  this differs from restricted attributes in that a value may be specified for saving, but restricted from edit
-if (typeof(GEO_DISABLEATTRIBUTES) == "undefined" || GEO_DISABLEATTRIBUTES == null) {
-  var GEO_DISABLEATTRIBUTES = new Array();
-}
-
-// Define universally disabled attribute controls
 
 function IncludeScript(targetDoc, script) {
   var htmlDoc = targetDoc.getElementsByTagName("head").item(0);
