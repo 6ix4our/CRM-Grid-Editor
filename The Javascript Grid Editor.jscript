@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////////////////////
 // Title:  The Javascript Grid Editor
 // Original Author:  David Berry
-// Version: 1.0  (see README for version information)
+// Version: 1.0.9  (see README for version information)
 // The contents of this file are copyrighted by David Berry, 2010.
 // Licensing is Creative Commons Attribution-ShareAlike 3.0 United States.
 // See the LICENSE file for details.
 //////////////////////////////////////////////////////////////////////////
 
-// Grid Editor Object Constants
 // [START] --- DO NOT MODIFY ---
+// Grid Editor Object Constants
 var GEO_CONSTANT_RECORDSTATE_OPEN = 1;
 var GEO_CONSTANT_RECORDSTATE_CLOSED = 2;
 var GEO_CONSTANT_MODE_VIEW = 1;
@@ -18,10 +18,6 @@ var GEO_CONSTANT_ACTION_EDIT = 1;
 var GEO_CONSTANT_ACTION_ADD = 2;
 var GEO_CONSTANT_ACTION_SAVE = 3;
 var GEO_CONSTANT_ACTION_CANCEL = 4;
-// [END]   --- DO NOT MODIFY ---
-
-// Define the entity for which the Grid Editor Object will be activated
-var GEO_ENTITYNAME = "";
 
 // Setup the container for registered button labels, as defined in the ISV.config file.  Defaulted with configuration with the English language ID (1033).
 var GEO_REGISTEREDBUTTONLABELS = new Object();
@@ -31,8 +27,11 @@ GEO_REGISTEREDBUTTONLABELS.EditSaveButton = new Array();
 
 // Setup the container for labels associated with the New/Cancel button
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton = new Array();
+// [END]   --- DO NOT MODIFY ---
 
+// [START]    --- MODIFY GEO_REGISTEREDBUTTONLABELS ---
 // Define languages and labels used to identify the buttons; Default configuration for 1033 provided.
+// [CL]:  Internal
 GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033] = new Array();
 GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033][GEO_CONSTANT_MODE_VIEW] = "Edit Mode";
 GEO_REGISTEREDBUTTONLABELS.EditSaveButton[1033][GEO_CONSTANT_MODE_EDIT] = "Save All";
@@ -42,28 +41,45 @@ GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033] = new Array();
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_VIEW] = "Insert Mode";
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_EDIT] = "Cancel All";
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_ADD] = "Cancel New";
+// [END]      --- MODIFY GEO_REGISTEREDBUTTONLABELS ---
 
+// [START]    --- MODIFY GEO_ENTITYNAME ---
+// Define the entity for which the Grid Editor Object will be activated
+// [CL]:  Internal
+var GEO_ENTITYNAME = "";
+// [END]      --- MODIFY GEO_ENTITYNAME ---
+
+// [START]    --- MODIFY GEO_RESTRICTEDATTRIBUTES ---
 // Declare any attributes restricted from acquiring controls for create and update in an Array
+// [CL]:  Internal
 var GEO_RESTRICTEDATTRIBUTES = new Array();
+// [END]      --- MODIFY GEO_RESTRICTEDATTRIBUTES ---
 
-// Setup the container for attributes that should have disabled controls, if not already established
+// [START]    --- MODIFY GEO_DISABLEATTRIBUTES ---
+// Declare any attributes that should have disabled controls in an Array
 // Note:  this differs from restricted attributes in that a value may be specified for saving, but restricted from edit
 if (typeof(GEO_DISABLEATTRIBUTES) == "undefined" || GEO_DISABLEATTRIBUTES == null) {
+  // [CL]:  Internal Conditional
   var GEO_DISABLEATTRIBUTES = new Array();
 }
 
-// Define universally disabled attribute controls
+// [CL]: Internal
 
-// Setup the container for default values used for new records, if none are established by other code
+// [END]      --- MODIFY GEO_DISABLEATTRIBUTES ---
+
+// [START]    --- MODIFY GEO_ADD_DEFAULTVALUES ---
+// Setup the container for default values used for new records
 if (typeof(GEO_ADD_DEFAULTVALUES) == "undefined" || GEO_ADD_DEFAULTVALUES == null) {
   var GEO_ADD_DEFAULTVALUES = new Object();
   GEO_ADD_DEFAULTVALUES.Properties = new Object();
   GEO_ADD_DEFAULTVALUES.Collections = new Object();
   
-  // Define default values if not previously defined
+  // [CL]:  Internal Conditional
 }
 
-// Define universally default values; overrides 
+// [CL]: Internal
+
+// [END]      --- MODIFY GEO_ADD_DEFAULTVALUES ---
 
 function IncludeScript(targetDoc, script) {
   var htmlDoc = targetDoc.getElementsByTagName("head").item(0);

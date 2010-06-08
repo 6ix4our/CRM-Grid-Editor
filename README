@@ -13,9 +13,9 @@ INSTRUCTIONS FOR USE:
 
 See:	http://crmentropy.blogspot.com/p/javascript-grid-editor.html
 
-VERSION HISTORY:
+VERSION HISTORY (Major Releases):
 
-1.0	Full Release
+1.0	Major Release
 
 	--In this Release--
 	All major features and functions are present and in fully operable condition.
@@ -37,14 +37,11 @@ VERSION HISTORY:
 	Feature Enhancements:
 		N/A
 
-	Bug Fixes:
-		N/A
+VERSION HISTORY (Bug Fix Releases):
 
+See:	http://github.com/6ix4our/CRM-Grid-Editor/commits/master
+		
 KNOWN BUGS:
-1	Changing the "view" of a Grid (if applicable) does not reset or change the mode of the Grid Editor:
-	This has the unintended consequence of leaving the Grid Editor in Edit or Insert Mode, with no editing 
-	or inserting fields available.
-2	Tabbing between fields follows no rational pattern:
-	This isn't by design, it's a side effect of how I construct the input field's HTML.  The tabbing
-	behavior was intended to be ironed out before release, but wasn't.  Expect a fix soon.
+
+See:	http://github.com/6ix4our/CRM-Grid-Editor/issues
 	 
