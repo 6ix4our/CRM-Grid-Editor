@@ -255,6 +255,7 @@ function RetrieveEntity(entityName, entityItems) {
     
           // Extract Options (if present)
           var options = attributeNode.selectNodes("Options/Option");
+          var optionNode = null;
     
           if (options.length > 0) {
             // Extract each Option with corresponding Value and Label data
@@ -264,7 +265,7 @@ function RetrieveEntity(entityName, entityItems) {
             }
             
             for (index = 0; index < options.length; index++) {
-              var optionNode = options.item(index);
+              optionNode = options.item(index);
     
               option = new Object();
               
@@ -286,7 +287,7 @@ function RetrieveEntity(entityName, entityItems) {
             }
             
             for (index = 0; index < options.length; index++) {
-              var optionNode = options.item(index);
+              optionNode = options.item(index);
     
               option = new Object();
               
@@ -299,7 +300,7 @@ function RetrieveEntity(entityName, entityItems) {
           }
     
           // Extract State Options (if present)
-          var options = attributeNode.selectNodes("Options/StateOption");
+          options = attributeNode.selectNodes("Options/StateOption");
           
           if (options.length > 0) {
             // Extract each StateOption with corresponding Value, Label, DefaultStatus, and InvariantName data
@@ -309,7 +310,7 @@ function RetrieveEntity(entityName, entityItems) {
             }
             
             for (index = 0; index < options.length; index++) {
-              var optionNode = options.item(index);
+              optionNode = options.item(index);
               
               option = new Object();
               
@@ -904,14 +905,17 @@ function GridEditorObject() {
   }
 
   // function to change Record state, and update UI elements in the process
-  this.ChangeRecordState = function(record, newState) {   
+  this.ChangeRecordState = function(record, newState) {
+    // Initialize our validity flag as false
+    var changeIsValid = false;
+  
     // Perform the appropriate action for the new state
     switch(newState) {
       case GEO_CONSTANT_RECORDSTATE_OPEN:
-        var changeIsValid = this.OpenRecord(record);
+        changeIsValid = this.OpenRecord(record);
         break;
       case GEO_CONSTANT_RECORDSTATE_CLOSED:
-        var changeIsValid = this.CloseRecord(record);
+        changeIsValid = this.CloseRecord(record);
         break;
     }
 
@@ -1069,6 +1073,9 @@ function GridEditorObject() {
 
   // function to construct the initialValue used by the OpenRecord function
   this.ConstructInitialValue = function(attribute, source) {
+    var recordType = null;
+    var targetEntity = null;
+    var iconURL = null;
     var initialValue = "";
     var controlName = attribute.LogicalName;
 
@@ -1089,8 +1096,6 @@ function GridEditorObject() {
       case "Lookup":
       case "Owner":
         if (source.Properties[controlName] != null) {
-          var recordType = null;
-
           // Sometimes, single target attributes don't return an additional "type" value; instead, examine the Target
           if (attribute.Targets.length == 1) {
             recordType = attribute.Targets[0];
@@ -1100,16 +1105,16 @@ function GridEditorObject() {
 
           // Gather target entity metadata
           if (!this.RetrievedEntities[recordType]) {
-            var targetEntity = this.RetrievedEntities[recordType] = RetrieveEntity(recordType, "EntityOnly");
+            targetEntity = this.RetrievedEntities[recordType] = RetrieveEntity(recordType, "EntityOnly");
           } else {
-            var targetEntity = this.RetrievedEntities[recordType];
+            targetEntity = this.RetrievedEntities[recordType];
           }
 
           // Gather the image URL
           if (IsUserDefinedEntityObjectTypeCode(targetEntity.ObjectTypeCode)) {
-            var iconURL = SERVER_URL + "/_Common/icon.aspx?objectTypeCode=" + targetEntity.ObjectTypeCode + "&iconType=GridIcon&inProduction=1&cache=1";
+            iconURL = SERVER_URL + "/_Common/icon.aspx?objectTypeCode=" + targetEntity.ObjectTypeCode + "&iconType=GridIcon&inProduction=1&cache=1";
           } else {
-            var iconURL = "/_imgs/ico_16_" + targetEntity.ObjectTypeCode + ".gif";
+            iconURL = "/_imgs/ico_16_" + targetEntity.ObjectTypeCode + ".gif";
           }
 
           // Construct our singular SPAN for this Lookup
@@ -1152,16 +1157,16 @@ function GridEditorObject() {
 
             // Gather target entity metadata
             if (!this.RetrievedEntities[recordType]) {
-              var targetEntity = this.RetrievedEntities[recordType] = RetrieveEntity(recordType, "EntityOnly");
+              targetEntity = this.RetrievedEntities[recordType] = RetrieveEntity(recordType, "EntityOnly");
             } else {
-              var targetEntity = this.RetrievedEntities[recordType];
+              targetEntity = this.RetrievedEntities[recordType];
             }
 
             // Gather the image URL
             if (IsUserDefinedEntityObjectTypeCode(targetEntity.ObjectTypeCode)) {
-              var iconURL = SERVER_URL + "/_Common/icon.aspx?objectTypeCode=" + targetEntity.ObjectTypeCode + "&iconType=GridIcon&inProduction=1&cache=1";
+              iconURL = SERVER_URL + "/_Common/icon.aspx?objectTypeCode=" + targetEntity.ObjectTypeCode + "&iconType=GridIcon&inProduction=1&cache=1";
             } else {
-              var iconURL = "/_imgs/ico_16_" + targetEntity.ObjectTypeCode + ".gif";
+              iconURL = "/_imgs/ico_16_" + targetEntity.ObjectTypeCode + ".gif";
             }
 
             // Construct our singular SPAN for this Lookup
@@ -1238,6 +1243,8 @@ function GridEditorObject() {
       // Is this attribute valid for the current Mode?
       if ((attribute.ValidForUpdate && this.Mode == GEO_CONSTANT_MODE_EDIT) || (attribute.ValidForCreate && this.Mode == GEO_CONSTANT_MODE_ADD)) {
         // Initialize important control variables
+        var targetEntity = null;
+        var iconURL = null;
         var inputControl = null;
         var cancelControl = false;
         var controlId = record.Guid + "-" + attribute.LogicalName;
@@ -1253,7 +1260,7 @@ function GridEditorObject() {
         attributeCell.attachEvent("onkeyup", DisableEventBubbling);
 
         // Create a new Object instance to encapsulate values and methods for initializing the control
-        var inputControl = new Object();
+        inputControl = new Object();
 
         // Initialize inputControl members
         inputControl.Id = controlId;
@@ -1435,16 +1442,16 @@ function GridEditorObject() {
 
               // Gather target entity metadata
               if (!this.RetrievedEntities[recordType]) {
-                var targetEntity = this.RetrievedEntities[recordType] = RetrieveEntity(recordType, "EntityOnly");
+                targetEntity = this.RetrievedEntities[recordType] = RetrieveEntity(recordType, "EntityOnly");
               } else {
-                var targetEntity = this.RetrievedEntities[recordType];
+                targetEntity = this.RetrievedEntities[recordType];
               }
 
               // Gather the image URL
               if (IsUserDefinedEntityObjectTypeCode(targetEntity.ObjectTypeCode)) {
-                var iconURL = SERVER_URL + "/_Common/icon.aspx?objectTypeCode=" + targetEntity.ObjectTypeCode + "&iconType=GridIcon&inProduction=1&cache=1";
+                iconURL = SERVER_URL + "/_Common/icon.aspx?objectTypeCode=" + targetEntity.ObjectTypeCode + "&iconType=GridIcon&inProduction=1&cache=1";
               } else {
-                var iconURL = "/_imgs/ico_16_" + targetEntity.ObjectTypeCode + ".gif";
+                iconURL = "/_imgs/ico_16_" + targetEntity.ObjectTypeCode + ".gif";
               }
 
               // Assemble input attributes for target entity types
