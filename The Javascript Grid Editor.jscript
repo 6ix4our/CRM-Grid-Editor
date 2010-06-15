@@ -19,7 +19,7 @@ var GEO_CONSTANT_ACTION_ADD = 2;
 var GEO_CONSTANT_ACTION_SAVE = 3;
 var GEO_CONSTANT_ACTION_CANCEL = 4;
 
-// Setup the container for registered button labels, as defined in the ISV.config file.  Defaulted with configuration with the English language ID (1033).
+// Setup the container for registered button labels, as defined in the ISV.config file.  Defaulted with configuration for the English language ID (1033).
 var GEO_REGISTEREDBUTTONLABELS = new Object();
 
 // Setup the container for labels associated with the Edit/Save button
@@ -62,7 +62,6 @@ if (typeof(GEO_DISABLEATTRIBUTES) == "undefined" || GEO_DISABLEATTRIBUTES == nul
   // [CL]:  Internal Conditional
   var GEO_DISABLEATTRIBUTES = new Array();
 }
-
 // [CL]: Internal
 
 // [END]      --- MODIFY GEO_DISABLEATTRIBUTES ---
@@ -76,7 +75,6 @@ if (typeof(GEO_ADD_DEFAULTVALUES) == "undefined" || GEO_ADD_DEFAULTVALUES == nul
   
   // [CL]:  Internal Conditional
 }
-
 // [CL]: Internal
 
 // [END]      --- MODIFY GEO_ADD_DEFAULTVALUES ---
