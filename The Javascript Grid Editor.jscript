@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Title:  The Javascript Grid Editor
 // Original Author:  David Berry
-// Version: 1.0.9  (see README for version information)
+// Version: 1.0.10  (see README for version information)
 // The contents of this file are copyrighted by David Berry, 2010.
 // Licensing is Creative Commons Attribution-ShareAlike 3.0 United States.
 // See the LICENSE file for details.
@@ -90,24 +90,38 @@ function IncludeScript(targetDoc, script) {
 }
 
 function IncludeExternalScript(targetDoc, filename) {
-  var htmlDoc = targetDoc.getElementsByTagName("head").item(0);
-  var js = targetDoc.createElement("script");
-  js.setAttribute("type", "text/javascript");
-  js.setAttribute("src", filename);
-  htmlDoc.appendChild(js);
-  
-  return js;
+  var httpObj = new ActiveXObject("Msxml2.XMLHTTP");
+  httpObj.open("GET", filename, false);
+  httpObj.send(null);
+
+  if (httpObj.status == 200 || httpObj.status == 304) {
+    IncludeScript(targetDoc, httpObj.responseText);
+  } else {
+    alert("Failure loading external script: " + filename); 
+  }
 }
 
-function IncludeExternalStylesheet(targetDoc, filename) {
+function IncludeStylesheet(targetDoc, script) {
   var htmlDoc = targetDoc.getElementsByTagName("head").item(0);
-  var css = targetDoc.createElement("link");
-  css.setAttribute("rel", "stylesheet");
+  var css = targetDoc.createElement("style");
+  //css.setAttribute("rel", "stylesheet");
   css.setAttribute("type", "text/css");
-  css.setAttribute("href", filename);
+  css.styleSheet.cssText = script;
   htmlDoc.appendChild(css);
   
   return css;
+}
+
+function IncludeExternalStylesheet(targetDoc, filename) {
+  var httpObj = new ActiveXObject("Msxml2.XMLHTTP");
+  httpObj.open("GET", filename, false)
+  httpObj.send(null);
+  
+  if (httpObj.status == 200 || httpObj.status == 304) {
+    IncludeStylesheet(targetDoc, httpObj.responseText);
+  } else {
+    alert ("Failure loading external script: " + filename);
+  }
 }
 
 function MischiefMayhemSOAP(serviceUrl, xmlSoapBody, soapActionHeader, suppressError) {
@@ -670,35 +684,6 @@ function GridEditorObject() {
     }
 
     return allRequiredPresent;
-  }
-
-  // function to examine the watch list of external resources, and initialize the GridEditorObject when all are complete
-  this.OnExternalResourceReadyStateChange = function() {
-    var allResourcesReady = true;
-
-    // Examine the readyState of all external resources
-    for (resourceIndex in this.ExternalResources) {
-      if (this.ExternalResources[resourceIndex].readyState != "complete") {
-        allResourcesReady = false;
-      } else {
-        this.ExternalResources[resourceIndex].detachEvent("onreadystatechange", this.OnExternalResourceReadyStateChangePointer);
-      }
-    }
-
-    // Fire our Init, followed by the OnButtonClick function if all external resources are ready
-    if (allResourcesReady) {
-      this.OnExternalResourceReadyStateChangePointer = function () { }
-      this.Init();
-    }
-  }
-
-  // function to build external resources (scripts and stylesheets) into a watch list
-  this.AddExternalResource = function(resourceElement) {
-    this.ExternalResources.push(resourceElement);
-
-    this.OnExternalResourceReadyStateChangePointer = AssociateObjWithEvent(this, "OnExternalResourceReadyStateChange");
-    // As each resource becomes ready, trigger our watch list examination code
-    resourceElement.attachEvent("onreadystatechange", this.OnExternalResourceReadyStateChangePointer);
   }
 
   // function to retrieve global variables from the Advanced Find page, for use with controls
@@ -2114,20 +2099,10 @@ function GridEditorObject() {
     document.all.crmGrid.attachEvent("onrefresh", AssociateObjWithEvent(this, "OnGridRefresh"));
   }
 
-  // function to initialize the GridEditorObject
-  this.Init = function() {
-    if (!this.Initialized) {
-      // change the Initialized flag
-      this.Initialized = true;
-
-      // take our first action
-      this.OnButtonClick(this.TriggerElement);
-    }
-  }
-
   // initialize the Initialized flag
   this.Initialized = false;
 
+  // initialize the Cancel flag
   this.Cancel = false;
 
   this.TriggerElement = window.event.srcElement;
@@ -2156,9 +2131,6 @@ function GridEditorObject() {
 
   this.ActionButtons.NewCancel.RegisteredText = GEO_REGISTEREDBUTTONLABELS.NewCancelButton;
 
-  // initialize the array of external resource nodes
-  this.ExternalResources = new Array();
-
   // initializes the GridEditorObject.TargetEntity member
   this.IdentifyEntity(GEO_ENTITYNAME);
 
@@ -2174,17 +2146,17 @@ function GridEditorObject() {
     IncludeScript(document, this.RetrieveGlobals());
 
     // load pertinent, external CRM-platform scripts and stylesheets for control usage
-    this.AddExternalResource(IncludeExternalStylesheet(document, "/_forms/controls/controls.css.aspx"));
-    this.AddExternalResource(IncludeExternalStylesheet(document, "/_common/styles/select.css.aspx"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_common/scripts/global.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_common/scripts/presence.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_common/scripts/select.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/util/util.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/lookup/lookup.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/popupmenu/popupmenu.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/datetime/date.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/datetime/time.js"));
-    this.AddExternalResource(IncludeExternalScript(document, "/_static/_controls/number/number.js"));
+    IncludeExternalStylesheet(document, "/_forms/controls/controls.css.aspx");
+    IncludeExternalStylesheet(document, "/_common/styles/select.css.aspx");
+    IncludeExternalScript(document, "/_static/_common/scripts/global.js");
+    IncludeExternalScript(document, "/_static/_common/scripts/presence.js");
+    IncludeExternalScript(document, "/_static/_common/scripts/select.js");
+    IncludeExternalScript(document, "/_static/_controls/util/util.js");
+    IncludeExternalScript(document, "/_static/_controls/lookup/lookup.js");
+    IncludeExternalScript(document, "/_static/_controls/popupmenu/popupmenu.js");
+    IncludeExternalScript(document, "/_static/_controls/datetime/date.js");
+    IncludeExternalScript(document, "/_static/_controls/datetime/time.js");
+    IncludeExternalScript(document, "/_static/_controls/number/number.js");
   
     // initializes the GridEditor in View mode
     this.Mode = GEO_CONSTANT_MODE_VIEW;
@@ -2200,6 +2172,9 @@ function GridEditorObject() {
   
     // load grid refresh handler
     this.LoadOnGridRefreshHandler();
+    
+    // change the Initialized flag
+    this.Initialized = true;
   }
 }
 
