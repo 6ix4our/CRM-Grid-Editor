@@ -1,10 +1,19 @@
 //////////////////////////////////////////////////////////////////////////
 // Title:  The Javascript Grid Editor
-// Original Author:  David Berry
 // Version: 1.0.10  (see README for version information)
-// The contents of this file are copyrighted by David Berry, 2010.
-// Licensing is Creative Commons Attribution-ShareAlike 3.0 United States.
-// See the LICENSE file for details.
+//
+// Copyright 2010 David Berry
+// Licensed under the Apache License, Version 2.0 (the "License"); 
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0 
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, 
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and 
+// limitations under the License. 
 //////////////////////////////////////////////////////////////////////////
 
 // [START] --- DO NOT MODIFY ---
@@ -2128,7 +2137,6 @@ function GridEditorObject() {
 
   // initialize the known ToolTips for the buttons, stored in relation to the localization code
   this.ActionButtons.EditSave.RegisteredText = GEO_REGISTEREDBUTTONLABELS.EditSaveButton;
-
   this.ActionButtons.NewCancel.RegisteredText = GEO_REGISTEREDBUTTONLABELS.NewCancelButton;
 
   // initializes the GridEditorObject.TargetEntity member
