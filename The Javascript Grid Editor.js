@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 // Title:  The Javascript Grid Editor
-// Version: 1.0.10  (see README for version information)
+// Version: 1.0.11  (see README for version information)
 //
 // Copyright 2010 David Berry
 // Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -36,7 +36,7 @@ GEO_REGISTEREDBUTTONLABELS.EditSaveButton = new Array();
 
 // Setup the container for labels associated with the New/Cancel button
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton = new Array();
-// [END]   --- DO NOT MODIFY ---
+// [END]
 
 // [START]    --- MODIFY GEO_REGISTEREDBUTTONLABELS ---
 // Define languages and labels used to identify the buttons; Default configuration for 1033 provided.
@@ -50,30 +50,58 @@ GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033] = new Array();
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_VIEW] = "Insert Mode";
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_EDIT] = "Cancel All";
 GEO_REGISTEREDBUTTONLABELS.NewCancelButton[1033][GEO_CONSTANT_MODE_ADD] = "Cancel New";
-// [END]      --- MODIFY GEO_REGISTEREDBUTTONLABELS ---
+// [END]
 
 // [START]    --- MODIFY GEO_ENTITYNAME ---
 // Define the entity for which the Grid Editor Object will be activated
 // [CL]:  Internal
 var GEO_ENTITYNAME = "";
-// [END]      --- MODIFY GEO_ENTITYNAME ---
+// [END]
+
+// [START]    --- MODIFY GEO_STATEATTRIBUTE ---
+// Define the attribute from which the state of the record is defined
+// [CL]:  Internal
+var GEO_STATEATTRIBUTE = "statecode";
+// [END]
+
+// [START]    --- MODIFY GEO_ENABLEADD ---
+// [CL]:  Internal
+var GEO_ENABLEADD = true;
+// [END]
+
+// [START]    --- MODIFY GEO_ENABLEEDIT ---
+// [CL]:  Internal
+var GEO_ENABLEEDIT = true;
+// [END]
 
 // [START]    --- MODIFY GEO_RESTRICTEDATTRIBUTES ---
 // Declare any attributes restricted from acquiring controls for create and update in an Array
 // [CL]:  Internal
 var GEO_RESTRICTEDATTRIBUTES = new Array();
-// [END]      --- MODIFY GEO_RESTRICTEDATTRIBUTES ---
+// [END]
 
 // [START]    --- MODIFY GEO_DISABLEATTRIBUTES ---
 // Declare any attributes that should have disabled controls in an Array
-// Note:  this differs from restricted attributes in that a value may be specified for saving, but restricted from edit
+// Note:  this differs from restricted attributes in that a value may be specified via script, but restricted from UI access
 if (typeof(GEO_DISABLEATTRIBUTES) == "undefined" || GEO_DISABLEATTRIBUTES == null) {
   // [CL]:  Internal Conditional
   var GEO_DISABLEATTRIBUTES = new Array();
 }
 // [CL]: Internal
 
-// [END]      --- MODIFY GEO_DISABLEATTRIBUTES ---
+// [END]
+
+// [START]    --- MODIFY GEO_EDIT_VALIDSTATEVALUES ---
+// Declare the acceptable integer values allowed for opening records for editing in an array
+// [CL]:  Internal
+var GEO_EDIT_VALIDSTATEVALUES = [0];
+// [END]
+
+// [START]    --- MODIFY GEO_ADD_DEFAULTSTATEVALUE ---
+// Declare the acceptable, default value for the configured state attribute of newly created records
+// [CL]:  Internal
+var GEO_ADD_DEFAULTSTATEVALUE = 0;
+// [END]
 
 // [START]    --- MODIFY GEO_ADD_DEFAULTVALUES ---
 // Setup the container for default values used for new records
@@ -85,8 +113,14 @@ if (typeof(GEO_ADD_DEFAULTVALUES) == "undefined" || GEO_ADD_DEFAULTVALUES == nul
   // [CL]:  Internal Conditional
 }
 // [CL]: Internal
+// [END]
 
-// [END]      --- MODIFY GEO_ADD_DEFAULTVALUES ---
+// [START]    --- DO NOT MODIFY ---
+// Default state assignment for new records
+if (!GEO_STATEATTRIBUTE in GEO_ADD_DEFAULTVALUES.Properties) {
+  
+}
+// [END]
 
 function IncludeScript(targetDoc, script) {
   var htmlDoc = targetDoc.getElementsByTagName("head").item(0);
@@ -632,6 +666,7 @@ function GridEditorObject() {
     var validatedAttrs = new Object();
     var restrictedAttrs = new Object();
     var validatedAttrsNum = 0;
+	var stateAttributeIncluded = false;
 
     // Gather the column definitions from the gridBar element
     this.GridColumns = document.getElementById("gridBar").rows[0].getElementsByTagName("TH");
@@ -712,19 +747,25 @@ function GridEditorObject() {
   }
 
   this.IdentifyButtons = function() {
+    var editSaveButtonFound = false;
+    var newCancelButtonFound = false;
     var liElements = document.getElementsByTagName("li");
 
     for (var elementIndex = 0; elementIndex < liElements.length; elementIndex++) {
       if (liElements[elementIndex].innerText == this.ActionButtons.EditSave.RegisteredText[this.Locale][this.Mode]) {
         this.ActionButtons.EditSave.LiElement = liElements[elementIndex];
+    editSaveButtonFound = true;
       } else if (liElements[elementIndex].innerText == this.ActionButtons.NewCancel.RegisteredText[this.Locale][this.Mode]) {
         this.ActionButtons.NewCancel.LiElement = liElements[elementIndex];
+    newCancelButtonFound = true;
       }
 
       if (this.ActionButtons.EditSave.LiElement != null && this.ActionButtons.NewCancel.LiElement != null) {
         break;
       }
     }
+    
+    return (editSaveButtonFound && newCancelButtonFound);
   }
 
   // action handler for button click
@@ -739,7 +780,9 @@ function GridEditorObject() {
           switch(this.Mode) {
             // Currently in View mode; button is to enter Edit mode
             case GEO_CONSTANT_MODE_VIEW:
-              this.TakeAction(GEO_CONSTANT_ACTION_EDIT);
+              if (GEO_ENABLEEDIT) {
+                this.TakeAction(GEO_CONSTANT_ACTION_EDIT);
+              }
               break;
             // Currently in Edit mode; button is to Save All
             case GEO_CONSTANT_MODE_EDIT:
@@ -758,7 +801,9 @@ function GridEditorObject() {
           switch(this.Mode) {
             // Currently in View mode; button is to enter Add mode
             case GEO_CONSTANT_MODE_VIEW:
-              this.TakeAction(GEO_CONSTANT_ACTION_ADD);
+              if (GEO_ENABLEADD) {
+                this.TakeAction(GEO_CONSTANT_ACTION_ADD);
+              }
               break;
             // Currently in Edit mode; button is to Cancel All
             case GEO_CONSTANT_MODE_EDIT:
@@ -1213,20 +1258,20 @@ function GridEditorObject() {
     // Perform Mode-specific tasks for the record
     if (this.Mode == GEO_CONSTANT_MODE_EDIT) {
       // Initialize variable to identify the presence of the statecode attribute
-      var stateCodeIncluded = false;
+      // var stateCodeIncluded = false;
   
       // Assemble an array of attributes to retrieve for the record from the registered Attributes array
       var retrieveAttrs = new Array();
   
       // Collect all the attributes together for retrieval
-      for (attrIndex in this.Attributes) {
-        retrieveAttrs.push(this.Attributes[attrIndex].LogicalName);
-        stateCodeIncluded = this.Attributes[attrIndex] == "statecode" ? true : stateCodeIncluded;
+      for (var attrLogicalName in this.Attributes) {
+        retrieveAttrs.push(attrLogicalName);
+        stateCodeIncluded = attrLogicalName == GEO_STATEATTRIBUTE ? true : stateCodeIncluded;
       }
   
       // Add the statecode attribute if it's not already included
       if (!stateCodeIncluded) {
-        retrieveAttrs.push("statecode");
+        retrieveAttrs.push(GEO_STATEATTRIBUTE);
       }
   
       // Retrieve the record's current values
@@ -1240,13 +1285,13 @@ function GridEditorObject() {
         return false;
       }
     }
-    
+	
     // Enable the record (in appearance)
     record.RowElement.style["height"] = "23px";
 
     // Check each attribute for the appropriate control to deploy
-    for (attrIndex in this.Attributes) {
-      var attribute = this.Attributes[attrIndex];
+    for (var attrLogicalName in this.Attributes) {
+      var attribute = this.Attributes[attrLogicalName];
 
       // Is this attribute valid for the current Mode?
       if ((attribute.ValidForUpdate && this.Mode == GEO_CONSTANT_MODE_EDIT) || (attribute.ValidForCreate && this.Mode == GEO_CONSTANT_MODE_ADD)) {
@@ -1309,7 +1354,7 @@ function GridEditorObject() {
           case "Picklist":
           case "Status":
             inputControlHTML = ""
-              + "<SELECT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-SelectBox' tabIndex='1080' value='" + inputControl.InitialValue + "' name='" + controlId + "'>"; //defaultSelected='" + attribute.DefaultValue + "'>";
+              + "<SELECT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-SelectBox' value='" + inputControl.InitialValue + "' name='" + controlId + "'>"; //defaultSelected='" + attribute.DefaultValue + "'>";
 
             // If the picklist has no valid default, include the blank option
             if (attribute.DefaultValue == "-1") {
@@ -1685,7 +1730,7 @@ function GridEditorObject() {
           // Abstract for assembling Decimal-based controls
           case "Decimal":
             inputControlHTML = ""
-            + "<INPUT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-Number' tabIndex='1080' max='" + attribute.MaxValue + "' dt='decimal' min='" + attribute.MinValue +"' acc='" + attribute.Precision + "' value='" + inputControl.InitialValue + "' _onchangeInitialized='false' />";
+            + "<INPUT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-Number' max='" + attribute.MaxValue + "' dt='decimal' min='" + attribute.MinValue +"' acc='" + attribute.Precision + "' value='" + inputControl.InitialValue + "' _onchangeInitialized='false' />";
 
             // Deploy this control with the standard method
             this.DeployStandardControl(inputControl, inputControlHTML);
@@ -1695,7 +1740,7 @@ function GridEditorObject() {
           // Abstract for assembling Float-based controls
           case "Float":
             inputControlHTML = ""
-            + "<INPUT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-Number' tabIndex='1170' max='" + attribute.MaxValue + "' dt='float' min='" + attribute.MinValue + "' acc='" + attribute.Precision + "' value='" + inputControl.InitialValue + "' _onchangeInitialized='false' />";
+            + "<INPUT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-Number' max='" + attribute.MaxValue + "' dt='float' min='" + attribute.MinValue + "' acc='" + attribute.Precision + "' value='" + inputControl.InitialValue + "' _onchangeInitialized='false' />";
 
             // Deploy this control with the standard method
             this.DeployStandardControl(inputControl, inputControlHTML);
@@ -1710,7 +1755,7 @@ function GridEditorObject() {
                 // the duration control HTML construct; I believe this is dynamically generated by the CRM platform for localized formats
                 // I will have to revisit this code to make it compatible to different locales; don't have time for this now.
                 inputControlHTML = ""
-                  + "<SPAN id='" + controlId + "Select' class='ms-crm-SelectBox' allowValueEdit='true' value='' tabbingIndex='1110' defaultimemode='auto' dropdownfontsize='11' defaultbgcolor='' ButtonTitle='Select a duration' name='" + controlId + "SelectInput'>"
+                  + "<SPAN id='" + controlId + "Select' class='ms-crm-SelectBox' allowValueEdit='true' value='' defaultimemode='auto' dropdownfontsize='11' defaultbgcolor='' ButtonTitle='Select a duration' name='" + controlId + "SelectInput'>"
                   + "<TABLE style='DISPLAY: none' cellSpacing='0' cellPadding='2'>"
                   + "<TBODY>"
                   + "<TR>"
@@ -1804,7 +1849,7 @@ function GridEditorObject() {
 
               case "None":
                 inputControlHTML = ""
-                  + "<INPUT style='IME-MODE: disabled' id='" + controlId +"' class='ms-crm-Number' tabIndex='1150' max='" + attribute.MaxValue + "' dt='int' min='" + attribute.MinValue + "' acc='0' _onchangeInitialized='false' value='" + inputControl.InitialValue + "' />";
+                  + "<INPUT style='IME-MODE: disabled' id='" + controlId +"' class='ms-crm-Number' max='" + attribute.MaxValue + "' dt='int' min='" + attribute.MinValue + "' acc='0' _onchangeInitialized='false' value='" + inputControl.InitialValue + "' />";
 
                 // Deploy this control with the standard method
                 this.DeployStandardControl(inputControl, inputControlHTML);
@@ -1825,7 +1870,7 @@ function GridEditorObject() {
             switch (attribute.Format) {
               case "Text":
                 inputControlHTML = ""
-                  + "<INPUT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-Text' tabIndex='1000' maxLength='" + attribute.MaxLength + "' defaultValue='" + inputControl.InitialValue + "' value='" + inputControl.InitialValue + "' />";
+                  + "<INPUT style='IME-MODE: auto' id='" + controlId + "' class='ms-crm-Text' maxLength='" + attribute.MaxLength + "' defaultValue='" + inputControl.InitialValue + "' value='" + inputControl.InitialValue + "' />";
 
                 // Deploy this control with the standard method
                 this.DeployStandardControl(inputControl, inputControlHTML);
@@ -1874,8 +1919,8 @@ function GridEditorObject() {
       switch (this.Mode) {
         case GEO_CONSTANT_MODE_EDIT:
           // Restore the contents of each cell, if they are needed
-          for (attrIndex in this.Attributes) {
-            var attribute = this.Attributes[attrIndex];
+          for (var attrLogicalName in this.Attributes) {
+            var attribute = this.Attributes[attrLogicalName];
     
             if (typeof(record.OriginalContent[attribute.GridPosition]) != "undefined") {
             
@@ -1908,7 +1953,7 @@ function GridEditorObject() {
   // function to write modified data back to CRM
   this.UpdateModifiedRecords = function() {
     // Examine all the Open records in the GridRecords array
-    for (recordIndex in this.GridRecords) {
+    for (var recordIndex in this.GridRecords) {
       var targetRecord = this.GridRecords[recordIndex];
       var recordIsDirty = false;
       
@@ -1926,7 +1971,7 @@ function GridEditorObject() {
       updateRecord.Collections = new Object();
 
       // Examine the record's InputControls array for modified values
-      for (inputIndex in targetRecord.InputControl) {
+      for (var inputIndex in targetRecord.InputControl) {
         var inputControl = targetRecord.InputControl[inputIndex];
         var inputIsDirty = inputControl.DOMElement.IsDirty;
         
@@ -1978,7 +2023,7 @@ function GridEditorObject() {
             updateRecord.Collections[inputControl.Attribute.LogicalName] = new Array();
 
             if (inputControl.DOMElement.DataValue != null) {
-              for (partyMemberIndex in inputControl.DOMElement.DataValue) {
+              for (var partyMemberIndex in inputControl.DOMElement.DataValue) {
                 var partyMember = inputControl.DOMElement.DataValue[partyMemberIndex];
                 var collectionMember = new Object();
                 
@@ -2013,7 +2058,7 @@ function GridEditorObject() {
   // function to write new data back to CRM
   this.CreateNewRecords = function() {
     // Examine all the Open records in the GridRecords array
-    for (recordIndex in this.GridRecords) {
+    for (var recordIndex in this.GridRecords) {
       var targetRecord = this.GridRecords[recordIndex];
       
       if (targetRecord.State != GEO_CONSTANT_RECORDSTATE_OPEN) {
@@ -2029,7 +2074,7 @@ function GridEditorObject() {
       createRecord.Collections = new Object();
 
       // Examine the record's InputControls array for modified values
-      for (inputIndex in targetRecord.InputControl) {
+      for (var inputIndex in targetRecord.InputControl) {
         var inputControl = targetRecord.InputControl[inputIndex];
 
         // Perform Attribute-specific translations of the DataValue member
@@ -2068,7 +2113,7 @@ function GridEditorObject() {
             createRecord.Collections[inputControl.Attribute.LogicalName] = new Array();
 
             if (inputControl.DOMElement.DataValue != null) {
-              for (partyMemberIndex in inputControl.DOMElement.DataValue) {
+              for (var partyMemberIndex in inputControl.DOMElement.DataValue) {
                 var partyMember = inputControl.DOMElement.DataValue[partyMemberIndex];
                 var collectionMember = new Object();
                 
@@ -2153,18 +2198,8 @@ function GridEditorObject() {
     // load pertinent globals, using our specialized function
     IncludeScript(document, this.RetrieveGlobals());
 
-    // load pertinent, external CRM-platform scripts and stylesheets for control usage
-    IncludeExternalStylesheet(document, "/_forms/controls/controls.css.aspx");
-    IncludeExternalStylesheet(document, "/_common/styles/select.css.aspx");
+    // load global.js from CRM code-base to support controls and other internal calls
     IncludeExternalScript(document, "/_static/_common/scripts/global.js");
-    IncludeExternalScript(document, "/_static/_common/scripts/presence.js");
-    IncludeExternalScript(document, "/_static/_common/scripts/select.js");
-    IncludeExternalScript(document, "/_static/_controls/util/util.js");
-    IncludeExternalScript(document, "/_static/_controls/lookup/lookup.js");
-    IncludeExternalScript(document, "/_static/_controls/popupmenu/popupmenu.js");
-    IncludeExternalScript(document, "/_static/_controls/datetime/date.js");
-    IncludeExternalScript(document, "/_static/_controls/datetime/time.js");
-    IncludeExternalScript(document, "/_static/_controls/number/number.js");
   
     // initializes the GridEditor in View mode
     this.Mode = GEO_CONSTANT_MODE_VIEW;
@@ -2173,16 +2208,30 @@ function GridEditorObject() {
     this.Locale = USER_LANGUAGE_CODE;
   
     // initializes the LiElement members of the action buttons
-    this.IdentifyButtons();
-  
-    // load grid selection change handler
-    this.LoadOnSelectionChangeHandler();
-  
-    // load grid refresh handler
-    this.LoadOnGridRefreshHandler();
+    if (this.IdentifyButtons()) {
+      // load scripts and stylesheets from CRM code-base to support controls
+      IncludeExternalStylesheet(document, "/_forms/controls/controls.css.aspx");
+      IncludeExternalStylesheet(document, "/_common/styles/select.css.aspx");
+      IncludeExternalScript(document, "/_static/_common/scripts/presence.js");
+      IncludeExternalScript(document, "/_static/_common/scripts/select.js");
+      IncludeExternalScript(document, "/_static/_controls/util/util.js");
+      IncludeExternalScript(document, "/_static/_controls/lookup/lookup.js");
+      IncludeExternalScript(document, "/_static/_controls/popupmenu/popupmenu.js");
+      IncludeExternalScript(document, "/_static/_controls/datetime/date.js");
+      IncludeExternalScript(document, "/_static/_controls/datetime/time.js");
+      IncludeExternalScript(document, "/_static/_controls/number/number.js");
     
-    // change the Initialized flag
-    this.Initialized = true;
+      // load grid selection change handler
+      this.LoadOnSelectionChangeHandler();
+    
+      // load grid refresh handler
+      this.LoadOnGridRefreshHandler();
+      
+      // change the Initialized flag
+      this.Initialized = true;
+    } else {
+      alert("Unable to identify one or both action buttons using language-code specified.  Please configure the Javascript Grid Editor accordingly.");
+    }
   }
 }
 
